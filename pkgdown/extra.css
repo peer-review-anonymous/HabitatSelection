@@ -1,0 +1,64 @@
+
+#header > h1.title.toc-ignore{
+  background-color: white!important;
+  font-size: 30px!important;
+  font-weight: bold!important;
+  color: black!important;
+}
+
+#header > h1.subtitle{
+  background-color: white!important;
+  font-size: 20px!important;
+  font-weight: normal!important;
+  color: #858585!important;
+  line-height: 1.35em!important;
+  margin-top:0px!important;
+}
+
+h1 {
+    background-color: black;
+    padding: 12px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: 19px !important;
+    color: white!important;
+    font-weight: bold!important;
+}
+
+
+body h2 {
+  font-size: 20px!important;
+  font-weight: bold;
+}
+
+h3 {
+  font-size: 20px!important;
+  font-weight: bold!important;
+}
+
+.hljs-keyword {
+    color: #337ab7!important;
+    font-weight: bold;
+}
+
+body {
+    font-size: 16px!important;
+}
+
+pre {
+    font-size: 15px!important;
+    border: 0px solid #ccc!important;
+}
+
+.hljs-string {
+    color: #dd7a11!important;
+}
+
+.hljs-comment {
+    color: #68a369!important;
+}
+
+div.csl-entry {
+    clear: both;
+    margin-top: 0.5em!important;
+}

@@ -1,0 +1,32 @@
+url: https://peer-review-anonymous.github.io/HabitatSelection/
+
+template:
+  bootstrap: 5
+  includes:
+    in_header: |
+      <link rel="stylesheet" href="extra.css">
+  
+navbar:
+  structure:
+    left: [intro, appendix]
+  components:
+    appendix:
+      text: Appendices
+      menu:
+      - text: "Model fitting"
+      - text: Appendix 1
+        href: Appendix1.html
+      - text: Appendix 2
+        href: Appendix2.html
+      - text: "---"
+      - text: "Data simulation"
+      - text: Appendix 3
+        href: Appendix3.html
+      - text: Appendix 4
+        href: Appendix4.html
+      - text: "---"
+      - text: "Supplementary Results"
+      - text: Appendix 5
+        href: Appendix5.pdf
+      
+
