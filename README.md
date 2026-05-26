@@ -1,6 +1,4 @@
-::: {#readme}
-## 
-:::
+### Overview
 
 This repository contains supplementary material accompanying the article entitled '**Modelling habitat selection using tracking data from central place foraging species: A practical guide for quantitative ecologists**', submitted to the *Journal of Animal Ecology*.
 
@@ -15,3 +13,21 @@ The full list of appendices is given below - these can be accessed using the nav
 **Appendix 4:** Data simulation for non central place foraging (NCPF) species
 
 **Appendix 5:** Supplementary figure – comparison of model estimates for CPF and NCPF species
+
+------------------------------------------------------------------------
+
+### Pre-print
+
+A pre-print version of this article can be found at
+
+### Abstract
+
+The study of habitat selection has long been at the heart of ecological research and is critical to deciphering the mechanisms that govern species’ responses to global change. This is particularly important for central-place foraging species, whose ability to adapt to shifting environmental conditions and anthropogenic disturbance is limited by persistent attachment to a fixed site.
+
+Recent advances in remote sensing have led to the widespread use of animal-borne telemetry to parameterise habitat selection models. However, many early model formulations rely on assumptions of temporal independence and unconstrained movement that are typically violated in modern tracking studies. Newer, more sophisticated methods have emerged to address these issues, yet most have been developed and presented in isolation, leading to a fragmented and often confusing methodological landscape that is difficult to navigate, even for experienced practitioners.
+
+Here, we provide an accessible guide to modelling habitat selection at regional scales from tracking data. We purposefully focus on building conceptual understanding rather than formal mathematical detail, with particular emphasis on reconciling how different models define and approximate availability – a pervasive source of confusion for quantitative ecologists. In doing so, we clarify how all existing approaches can be understood through the lens of point process theory and articulate connections that are often difficult to discern from the literature.
+
+Using a realistic simulation of colonially-breeding seabirds, we provide a worked example with reproducible code demonstrating how models can be fitted in the R software using syntax familiar to many ecologists. Our case study shows that explicitly accounting for how movement dictates the range of locations accessible to individuals yields more robust estimates of habitat effects. We also highlight how the spatial constraints imposed by central-place foraging can inflate the apparent importance of habitats that are simply encountered due to the mechanics of central-place commuting rather than genuine preference.
+
+We hope that this paper can help readers make sense of the ecological and statistical literature while offering a practical, hands on reference for analysing tracking data in habitat selection studies.
