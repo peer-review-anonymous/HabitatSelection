@@ -8,7 +8,6 @@
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
@@ -17,7 +16,8 @@
 
 <link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 
-<title>Modelling habitat selection using tracking data from central place foraging: A practical guide for ecologists - Simulations for non central place foragers</title>
+
+<title>Modelling habitat selection using tracking data from central place foraging: A practical guide for ecologists - Simulations for central place foragers</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -384,24 +384,30 @@ display: none;
           Appendices
         </button>
 
-        <ul class="dropdown-menu" aria-labelledby="dropdown-appendices">
-          <li><h6 class="dropdown-header" data-toc-skip>Model fitting</h6></li>
-          <li><a class="dropdown-item" href="Appendix1.html">Appendix 1</a></li>
-          <li><a class="dropdown-item" href="Appendix2.html">Appendix 2</a></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><h6 class="dropdown-header" data-toc-skip>Data simulation</h6></li>
-          <li><a class="dropdown-item" href="Appendix3.html">Appendix 3</a></li>
-          <li><a class="dropdown-item" href="Appendix4.html">Appendix 4</a></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><h6 class="dropdown-header" data-toc-skip>Supplementary Results</h6></li>
-          <li><a class="dropdown-item" href="Appendix5.pdf">Appendix 5</a></li>
-        </ul>
+         <ul class="dropdown-menu" aria-labelledby="dropdown-appendices">
+<li><h6 class="dropdown-header" data-toc-skip>Explanation of the methods</h6></li>
+    <li><a class="dropdown-item" href="Appendix_01.pdf">Appendix 1 (plain language)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Central place foragers (CPF)</h6></li>
+    <li><a class="dropdown-item" href="Appendix_02.html">Appendix 2 (simulation)</a></li>
+    <li><a class="dropdown-item" href="Appendix_03.html">Appendix 3 (model fitting)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Non central place foragers (NCPF)</h6></li>
+    <li><a class="dropdown-item" href="Appendix_04.html">Appendix 4 (simulation)</a></li>
+    <li><a class="dropdown-item" href="Appendix_05.html">Appendix 5 (model fitting)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Supplementary Results</h6></li>
+    <li><a class="dropdown-item" href="Appendix_06.pdf">Appendix 6</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Supplementary Text</h6></li>
+    <li><a class="dropdown-item" href="Appendix_07.pdf">Appendix 7 (limitations)</a></li>
+    <li><a class="dropdown-item" href="Appendix_08.pdf">Appendix 8 (considerations)</a></li>
+  </ul>
       </li>
     </ul>
 
   </div>
 </nav>
-
 
 <div class="container-fluid main-container">
 
@@ -410,7 +416,8 @@ display: none;
 
 <div id="header">
 
-<h1 class="title toc-ignore"> Appendix 4. Data simulation for non central place foraging (NCPF) species</h1>
+
+<h1 class="title toc-ignore"> Appendix 2. Data simulation for central place foraging (CPF) species</h1>
 <h1 class="subtitle">Modelling habitat selection using tracking
 data from central place foraging species: A practical guide for
 quantitative ecologists</h1>
@@ -420,17 +427,19 @@ quantitative ecologists</h1>
 
 <div id="workspace-setup" class="section level2">
 <h2>Workspace setup</h2>
-<pre class="r"><code>library(CircStats)
-library(Rcpp)
-library(RcppArmadillo)
-library(sp)
-library(geosphere)
-library(maps)
+<pre class="r"><code>library(CircStats) # for von Mises distribution
+library(Rcpp) # likelihood in C++
+library(RcppArmadillo) # likelihood in C++
+library(sp) # for great circle distances
+library(geosphere) # for great circle bearings
+library(maps) # for map plots
 library(raster)
 library(spatstat)
 library(sf)
 library(geoR)
 library(ggplot2)
+library(doParallel)
+library(foreach)
 set.seed(1234)</code></pre>
 </div>
 <div id="habitat-simulation" class="section level2">
@@ -475,22 +484,35 @@ ggplot(df, aes(x = x, y = y, fill = value)) +
   coord_fixed(expand = FALSE) + 
   theme_bw() </code></pre>
 </div>
-<div id="movement-simulation" class="section level2">
-<h2>Movement simulation</h2>
+<div id="central place" class="section level2">
+<h2>Central place</h2>
+<pre class="r"><code>centre &lt;- c(24950, 24950)
+ggplot(df, aes(x = x, y = y, fill = value)) +
+  geom_raster() + 
+  geom_point(aes(x=centre[1], y=centre[2]), col=&quot;white&quot;,size=3)+
+  labs(fill = &quot;Value&quot;) + 
+  xlab(&quot;X coordinates&quot;)+
+  ylab(&quot;Y coordinates&quot;) +
+  scale_fill_viridis_c()+
+  theme_bw()</code></pre>
+</div>
+<div id="movement-data-simulation" class="section level2">
+<h2>Movement data simulation</h2>
 <div id="behavioural-states" class="section level3">
 <h3>Behavioural states</h3>
-<p>Animal movement was modelled using a three-state behavioural
-framework designed to capture the main movement modes of non-central
-place foragers, which do not undertake directed trips to or from a
-central location. Specifically, State 1 (travelling) represents fast,
-directed movement; State 2 (search) corresponds to moderately fast
-movement with some directional persistence; and State 3 (foraging)
-reflects slower, more tortuous movement associated with intensive
-resource use. Transitions between behavioural states were influenced by
-habitat conditions, such that individuals were more likely to enter
-search (State 2) or foraging (State 3) when in suitable habitat, and
-more likely to leave the foraging state as habitat suitability decreased
-or as time increased.</p>
+<p>Following <span class="citation">Michelot et al. (2017)</span>, each
+central place foraging (CPF) movement path was represented as a sequence
+of four behavioural states:</p>
+<ol style="list-style-type: decimal">
+<li>outbound travel (fast, highly directed movement away from the
+central place),</li>
+<li>search (moderately fast movement with some directional
+persistence)</li>
+<li>active foraging (slower, less directed and more sinuous movement),
+and</li>
+<li>inbound travel (fast, directed movement towards the central
+place).</li>
+</ol>
 </div>
 <div id="state-transition-model" class="section level3">
 <h3>State transition model</h3>
@@ -504,140 +526,155 @@ habitat <span class="citation">(Michelot et al. 2017)</span>.</p>
 <p><span class="math display">\[
 T =
 \begin{pmatrix}
-1 - p_{12} &amp; p_{12} &amp; 0 \\
-0 &amp; 1 - p_{23} &amp; p_{23} \\
-r_{31} &amp; r_{32} &amp; r_{33}
+1 - \gamma_{1,2} &amp; \gamma_{1,2} &amp; 0 &amp; 0 \\
+0 &amp; 1 - \gamma_{2,3} - \gamma_{2,4} &amp; \gamma_{2,3} &amp;
+\gamma_{2,4} \\
+0 &amp; 0 &amp; 1 - \gamma_{3,4} &amp; \gamma_{3,4} \\
+0 &amp; 0 &amp; 0 &amp; 1
 \end{pmatrix}
 \]</span></p>
-<p>where <span class="math inline">\(p_{12}\)</span> corresponds to
-switching from travelling <span class="math inline">\(\rightarrow\)</span> searching, <span class="math inline">\(p_{23}\)</span> searching <span class="math inline">\(\rightarrow\)</span> foraging and <span class="math inline">\(r_{31}, r_{32}, r_{33}\)</span> the transitions
-from foraging to other states.</p>
+<p>where <span class="math inline">\(\gamma_{A, B}\)</span> represents
+the probability of switching from behavioural state A to behavioural
+state B and behaviours are numbered according to their canonical
+progression during a single foraging trip (i.e., outbound (1) <span class="math inline">\(\rightarrow\)</span> search (2) <span class="math inline">\(\rightarrow\)</span> foraging (3) <span class="math inline">\(\rightarrow\)</span> (4) inbound). Each row and
+column in <span class="math inline">\(T\)</span> corresponds to a
+separate behaviour: values along the diagonal give the probabilities of
+remaining in the same state, whereas off-diagonal values denote
+probabilities of switching from the row state to the column state. For
+instance, <span class="math inline">\(\gamma_{1,2}\)</span> corresponds
+to the probability of transitioning from outbound travel to search.</p>
 <p>We defined:</p>
-<p><span class="math display">\[p_{12} =
-\text{logit}^{-1}(\eta_{12})\]</span> <span class="math display">\[p_{23} = \text{logit}^{-1}(\eta_{23})\]</span>
-<span class="math display">\[r_{31} = \frac{e^{\eta_{31}}}{1 +
-e^{\eta_{31}} + e^{\eta_{32}}}\]</span> <span class="math display">\[r_{32} = \frac{e^{\eta_{32}}}{1 + e^{\eta_{31}} +
-e^{\eta_{32}}}\]</span> <span class="math display">\[r_{33} = 1 - r_{31}
-- r_{32}\]</span></p>
+<p><span class="math display">\[\gamma_{1,2} =
+\operatorname{logit}^{-1}(\eta_{1,2})$, $\gamma_{2,3} = e^{\eta_{2,3}} /
+D\]</span></p>
+<p><span class="math display">\[\gamma_{2,4} = e^{\eta_{2,4}} /
+D\]</span></p>
+<p><span class="math display">\[\gamma_{3,4} =
+\operatorname{logit}^{-1}(\eta_{3,4})\]</span></p>
+<p>with <span class="math inline">\(D = 1 + e^{\eta_{2,3}} +
+e^{\eta_{2,4}}\)</span>.</p>
 <p>The linear predictors were specified as:</p>
-<p><span class="math display">\[
-\eta_{12} = -2 + 1.5 \cdot \text{Habitat}
-\]</span></p>
-<p><span class="math display">\[
-\eta_{23} = -1.5 + 3 \cdot \text{Habitat}
-\]</span></p>
-<p><span class="math display">\[
-\eta_{31} = -3 - 3 \cdot \text{Habitat} + 0.05 \cdot \text{Time}
-\]</span></p>
-<p><span class="math display">\[
-\eta_{32} = -3 - 1.5 \cdot \text{Habitat} + 0.05 \cdot \text{Time}
-\]</span></p>
-<pre class="r"><code># -------------------------------------------------------------
-# Transition matrix
-# ------------------------------------------------------------
-addLogit_rcpp &lt;- function(x1, x2) {
+<ul>
+<li><span class="math inline">\(\eta_{1,2}= -3 + 0.0005 \times
+\text{distance to colony} + 1.5 \times \text{habitat}\)</span></li>
+<li><span class="math inline">\(\eta_{2,3}= -5 + 3 \times
+\text{habitat}\)</span></li>
+<li><span class="math inline">\(\eta_{2,4}= -6 + 0.05 \times \text{time
+since departure}\)</span></li>
+<li><span class="math inline">\(\eta_{3,4}= -5 + 0.015 \times \text{time
+since departure}\)</span></li>
+</ul>
+<p>This parameterisation increases the probability of switching from
+outbound travel (1) or search (2) to active foraging (3) in suitable
+habitat and increases the probability of inbound travel (4) as time
+since departure grows, thereby capturing key features of CPF behaviour
+<span class="citation">(Michelot et al. 2017)</span>.</p>
+<pre class="r"><code>addLogit_rcpp &lt;- function(x1, x2) {
   p1 &lt;- exp(x1)
   p2 &lt;- exp(x2)
   res &lt;- c(p1 / (1 + p1 + p2), p2 / (1 + p1 + p2), 1 - (p1 / (1 + p1 + p2)) - (p2 / (1 + p1 + p2)))
   return(res)
 }
 
-trMatrix_rcpp &lt;- function(beta, time, cov) {
-  trMat &lt;- matrix(ncol = 3, nrow = 3)
+trMatrix_rcpp &lt;- function(beta, dist, time, cov) {
   
-  # From State 1
-  p12 &lt;- plogis(beta[1] + beta[2] * cov)
-  trMat[1, 1] &lt;- 1 - p12
-  trMat[1, 2] &lt;- p12
-  trMat[1, 3] &lt;- 0
+  trMat &lt;- matrix(ncol=4, nrow=4)
   
-  # From State 2
-  p23 &lt;- plogis(beta[3] + beta[4] * cov)
-  trMat[2, 1] &lt;- 0
-  trMat[2, 2] &lt;- 1 - p23
-  trMat[2, 3] &lt;- p23
+  trMat[1, 1] &lt;- 1 - plogis(beta[1] + beta[2] * dist + beta[3] * cov) # prob of staying in stage 1
+  trMat[1, 2] &lt;- plogis(beta[1] + beta[2] * dist + beta[3] * cov)# prob of going from stage 1 to 2 as a function of cov
+  trMat[1, 3] &lt;- 0 # prob of going from stage 1 to 3
+  trMat[1, 4] &lt;- 0 # prob of going from stage 1 to 4
   
-  # From State 3
-  p31 &lt;- beta[5] + beta[6] * cov + beta[7] * time
-  p32 &lt;- beta[8] + beta[9] * cov + beta[10] * time
-  r3 &lt;- addLogit_rcpp(p31, p32)
+  foo23 &lt;- beta[4] + beta[5] * cov # prob of going from stage 2 to 3 as a function of cov
+  foo24 &lt;- beta[6] + beta[7] * time # prob of going from stage 2 to 4 as a function of time
   
+  r2 &lt;- addLogit_rcpp(foo23, foo24)
   
-  trMat[3, 1] &lt;- r3[1]
-  trMat[3, 2] &lt;- r3[2]
-  trMat[3, 3] &lt;- r3[3]
+  trMat[2, 1] &lt;- 0 # prob of going from stage 2 to 1 
+  trMat[2, 2] &lt;- r2[3] # prob of staying stage 2 
+  trMat[2, 3] &lt;- r2[1] # prob of going from stage 2 to 3 
+  trMat[2, 4] &lt;- r2[2] # prob of going from stage 2 to 4 
+  
+  trMat[3, 1] &lt;- 0 # prob of going from stage 3 to 1 
+  trMat[3, 2] &lt;- 0 # prob of going from stage 3 to 2 
+  trMat[3, 3] &lt;- 1 - plogis(beta[8] + beta[9] * time) # prob of staying in stage 3
+  trMat[3, 4] &lt;- plogis(beta[8] + beta[9] * time) # prob of going from stage 3 to 4 as a function of time 
+  
+  trMat[4, 1] &lt;- 0 #prob of staying in stage 4
+  trMat[4, 2] &lt;- 0 #prob of staying in stage 4
+  trMat[4, 3] &lt;- 0 #prob of staying in stage 4
+  trMat[4, 4] &lt;- 1 #prob of staying in stage 4
   
   return(trMat)
 }
 
-# HMM transition coefficients
-beta &lt;- c(
-  -2, 1.5,        # State 1 → 2 
-  -1.5, 3,      # State 2 → 3 
-  -3, -3, 0.05,  # State 3 → 1 (less likely to leave)
-  -3, -1.5, 0.05  # State 3 → 2 (less likely to leave)
-)</code></pre>
-<p>Higher habitat suitability increased the probability of transitioning
-into search and foraging states, whereas the likelihood of leaving the
-foraging state increased with time spent within a patch. This transition
-structure captures realistic patch-use dynamics typical of non-central
-place foragers.</p>
+#linear predictors
+beta &lt;- c(-3, 0.0005, 1.5,   # stage 1 → 2
+          -5, 3,              # stage 2 → 3
+          -6, 0.05,           # stage 2 → 4
+          -5, 0.015)          # stage 3 → 4
+
+#Number of states
+nbStates&lt;-4</code></pre>
 </div>
 <div id="state-specific-parameters" class="section level3">
 <h3>State-specific parameters</h3>
-<p>State-specific behaviours process were modelled as correlated random
-walks, with associated parameters varying among behavioural states. Step
-lengths and turning angles were modelled using gamma and von Mises
-distributions, respectively, with state-specific parameter values.</p>
+<p>Directional travel (outbound and inbound) was modelled as a biased
+correlated random walk, incorporating repulsion from the colony during
+outbound movement and attraction towards the colony during inbound
+movement. In contrast, search and foraging behaviours were modelled as
+correlated random walks. Step lengths and turning angles were modelled
+using gamma and von Mises distributions, respectively, with
+state-specific parameter values.</p>
 <table>
-<colgroup>
-<col width="8%" />
-<col width="28%" />
-<col width="10%" />
-<col width="27%" />
-<col width="25%" />
-</colgroup>
 <thead>
 <tr class="header">
-<th>State</th>
-<th>Mean step length (m)</th>
-<th>SD (m)</th>
-<th>von Mises <span class="math inline">\(\kappa\)</span></th>
-<th>Turning angle mean</th>
+<th>Behavioural state (No.)</th>
+<th>μ</th>
+<th>σ</th>
+<th>θ</th>
+<th>κ</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>1 (Travel)</td>
+<td>Outbound (1)</td>
 <td>571.8</td>
 <td>195.4</td>
+<td><span class="math inline">\(\alpha_t + \pi\)</span></td>
 <td>14</td>
-<td>0</td>
 </tr>
 <tr class="even">
-<td>2 (Search)</td>
+<td>Search (2)</td>
 <td>350.0</td>
 <td>190.0</td>
+<td>0</td>
 <td>5</td>
-<td><span class="math inline">\(\pi\)</span></td>
 </tr>
 <tr class="odd">
-<td>3 (Foraging)</td>
+<td>Foraging (3)</td>
 <td>108.0</td>
 <td>131.2</td>
+<td><span class="math inline">\(\pi\)</span></td>
 <td>0.84</td>
-<td>0</td>
+</tr>
+<tr class="even">
+<td>Inbound (4)</td>
+<td>571.8</td>
+<td>195.4</td>
+<td><span class="math inline">\(\alpha_t\)</span></td>
+<td>14</td>
 </tr>
 </tbody>
 </table>
 <p>New locations were then calculated from sampled step lengths and
 turning angles using great-circle geometry implemented in the R package
 <code>geosphere</code> <span class="citation">(Hijmans 2026)</span>.</p>
-<pre class="r"><code>mu &lt;- c(571.8, 350, 108)
-sigma &lt;- c(195.4, 190, 131.2)
-am &lt;- c(0, -0.00647766, pi)
-kappa &lt;- c(8, 5, 0.84)
-nbStates &lt;- 3</code></pre>
+<pre class="r"><code>#choose model parameters
+mu &lt;- c(571.8,350, 108, 571.8) # step mean - in meters for 1 min interval (original values for kittiwakes in 5 min)
+sigma &lt;- c(195.4, 190 ,131.2, 195.4) # step SD
+am &lt;- c(-0.00647766,3.14001249)
+kappa &lt;- c(14, 5, 0.84, 14) # angle concentration - (Larger values lead to lower variance of the von Mises distribution, and hence higher persistence in direction.)</code></pre>
 </div>
 <div id="step-selection" class="section level3">
 <h3>Step selection</h3>
@@ -665,16 +702,14 @@ analytically from the gamma distribution parameters <span class="citation">(Klap
 simulations with values ranging from 0.5 to 1.5 (in 0.25 increments) as
 well as 0 (no habitat selection) to assess how models performed under
 different selection strengths.</p>
-<p>Individuals were initialised at a random location within the
-simulation area at time <span class="math inline">\(t = 0\)</span>, with
-the first step generated by drawing a direction <span class="math inline">\(\phi_0 \sim \mathrm{von\ Mises}(0, 1)\)</span> and
-a step length <span class="math inline">\(L_0 \sim \mathrm{Gamma}(k,
-\theta)\)</span>. The latter was parameterised in terms of the
-state-specific mean <span class="math inline">\(\mu\)</span> and
-standard deviation <span class="math inline">\(\sigma\)</span> for
-travel, such that <span class="math inline">\(k = \mu^2 /
-\sigma^2\)</span> and <span class="math inline">\(\theta = \sigma^2 /
-\mu\)</span>. The resulting displacement defines the first location.</p>
+<p>Individuals were initialised at the colony at time <span class="math inline">\(t = 0\)</span>, with the first step generated by
+drawing a direction <span class="math inline">\(\phi_0 \sim \mathrm{von\
+Mises}(0, 1)\)</span> and a step length <span class="math inline">\(L_0
+\sim \mathrm{Gamma}(k, \theta)\)</span>. The latter was parameterised in
+terms of the state-specific mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span> for outbound travel, such that
+<span class="math inline">\(k = \mu^2 / \sigma^2\)</span> and <span class="math inline">\(\theta = \sigma^2 / \mu\)</span>. The resulting
+displacement defines the first location, and the initial turning angle
+was set as the direction from this location back towards the colony.</p>
 <pre class="r"><code>### SSF parameters
 # Equations exist to determine the scale and shape parameters of a gamma distribution
 # based on its mean and sd
@@ -687,137 +722,132 @@ shape &lt;- mu^2 / sigma^2
 beta1 &lt;- -1 / scale
 beta2 &lt;- shape - 2
 
-cov_beta &lt;- 0 #0.5, 0.75, 1, 1.25, 1.5, 1.75,2</code></pre>
+cov_beta &lt;- 0 #0.5, 0.75, 1, 1.25, 1.5, 1.75,2
+
+ssf_formula &lt;- as.formula(&quot; ~ cov&quot;)
+
+n_zeros &lt;- 10000</code></pre>
 </div>
 <div id="simulate-animal-tracks" class="section level3">
 <h3>Simulate animal tracks</h3>
-<p>We simulate a full population of 1,000 individuals and one track per
-individual with duration of 360 minutes.</p>
-<pre class="r"><code>nbTracks &lt;- 1
-nbID &lt;- 1000
+<p>We simulate a full population of 1,000 individuals and generated 25
+complete tracks per individual in each simulation.</p>
+<pre class="r"><code>nbTracks&lt;-25
+nbID&lt;-1000 #corresponds to all population
 
-for(c in 1:length(cov_beta)){
+simulate_one_ID &lt;- function(id,
+                            nbTracks,
+                            centre,
+                            mu, sigma, kappa, am,
+                            ssf_betas, ssf_formula,
+                            cov_raster,
+                            beta,
+                            nbStates,
+                            n_zeros) {
   
-  cov_gamma &lt;- rep(1, 3)
-  cov_coefs &lt;- cov_beta[c] * cov_gamma
+  # precompute gamma params
+  gamma_shape &lt;- mu^2 / sigma^2
+  gamma_scale &lt;- sigma^2 / mu
   
-  ssf_betas &lt;- matrix(c(beta1, beta2, kappa, cov_coefs),
-                      ncol = nbStates, byrow = TRUE)
+  id_tracks &lt;- vector(&quot;list&quot;, nbTracks)
   
-  ssf_formula &lt;- ~ cov
-  n_zeros &lt;- 10000
-  
-  data &lt;- NULL
-  
-  for (id in 1:nbID) {
-    print(paste0(&quot;Beta: &quot;, cov_beta[c],&quot;; Individual: &quot;,id ))
+  for (tr in seq_len(nbTracks)) {
     
-    track_data &lt;- NULL
+    track_list &lt;- vector(&quot;list&quot;, 5000)  # upper bound, trimmed later
+    k &lt;- 1
     
     state &lt;- 1
-    phi &lt;- rvm(1, 0, 1)
-    
-    len &lt;- rgamma(1,
-                  shape = mu[1]^2 / sigma[1]^2,
-                  scale = sigma[1]^2 / mu[1])
-    
-    centre &lt;- c(sample(seq(500,48500,100),1),
-                sample(seq(500,48500,100),1))
-    
-    newLoc &lt;- centre + c(len * cos(phi), len * sin(phi))
-    
-    while(!newLoc[1] &gt;= 100 &amp; newLoc[1] &lt;= 49900 &amp;
-        newLoc[2] &gt;= 100 &amp; newLoc[2] &lt;= 49900){
-          
-            centre &lt;- c(sample(seq(500,48500,100),1),
-                sample(seq(500,48500,100),1))
-    
-    newLoc &lt;- centre + c(len * cos(phi), len * sin(phi))
-        }
-    
-    angle &lt;- rvm(1, mean = am[state], k = kappa[state])
-    
-    track_data &lt;- rbind(track_data, data.frame(
-      x = centre[1], y = centre[2],
-      step = NA, angle = NA, bearing = NA,
-      state = 1, time = 0, ID = id))
-    
     time &lt;- 0
     
-    while (time &lt; 360) {
+    phi &lt;- CircStats::rvm(1, 0, 1)
+    len &lt;- rgamma(1, shape = gamma_shape[1], scale = gamma_scale[1])
+    newLoc &lt;- centre + c(len * cos(phi), len * sin(phi))
+    angle &lt;- atan2(centre[2] - newLoc[2], centre[1] - newLoc[1])
+    
+    track_list[[k]] &lt;- data.frame(
+      Track_id = tr, x = centre[1], y = centre[2],
+      step = NA, angle = NA, bearing = NA,
+      state = 1, time = 0, ID = id
+    )
+    k &lt;- k + 1
+    
+    track_list[[k]] &lt;- data.frame(
+      Track_id = tr, x = newLoc[1], y = newLoc[2],
+      step = len, angle = angle, bearing = phi,
+      state = 1, time = 1, ID = id
+    )
+    k &lt;- k + 1
+    time &lt;- 1
+    
+    while (!(state == 4 &amp;&amp; sqrt(sum((newLoc - centre)^2)) &lt; 1000)) {
       
       time &lt;- time + 1
       phi0 &lt;- phi
       
-      cov &lt;- raster::extract(cov_raster, matrix(newLoc, nrow = 1))
-      trMat &lt;- trMatrix_rcpp(beta, time, cov)
-      state &lt;- sample(1:nbStates, 1, prob = trMat[state, ])
+      dist &lt;- sqrt(sum((newLoc - centre)^2))
+      cov  &lt;- raster::extract(cov_raster, matrix(newLoc, nrow = 1))
       
-      angle_candidates &lt;- rvm(n_zeros, mean = am[state], k = kappa[state])
-      phi_candidates &lt;- phi + angle_candidates
+      trMat &lt;- trMatrix_rcpp(beta, dist, time, cov)
+      state &lt;- sample(seq_len(nbStates), 1, prob = trMat[state, ])
       
-      len_candidates &lt;- rgamma(n_zeros,
-                               shape = mu[state]^2 / sigma[state]^2,
-                               scale = sigma[state]^2 / mu[state])
+      if (state %in% c(1, 4)) {
+        angle &lt;- atan2(centre[2] - newLoc[2], centre[1] - newLoc[1])
+        phi &lt;- CircStats::rvm(
+          n_zeros,
+          mean = angle + ifelse(state == 1, pi, 0),
+          k = kappa[state]
+        )
+      } else {
+        angle &lt;- CircStats::rvm(n_zeros, am[state - 1], kappa[state])
+        phi &lt;- phi + angle
+      }
       
-      dx &lt;- len_candidates * cos(phi_candidates)
-      dy &lt;- len_candidates * sin(phi_candidates)
+      len &lt;- rgamma(
+        n_zeros,
+        shape = gamma_shape[state],
+        scale = gamma_scale[state]
+      )
       
+      dx &lt;- len * cos(phi)
+      dy &lt;- len * sin(phi)
       endpoints &lt;- cbind(newLoc[1] + dx, newLoc[2] + dy)
       
+      cov_vals &lt;- raster::extract(cov_raster, endpoints)
+      valid &lt;- !is.na(cov_vals)
+      
+      if (!any(valid)) next
+      
+      endpoints &lt;- endpoints[valid, , drop = FALSE]
+      cov_vals &lt;- cov_vals[valid]
+      len      &lt;- len[valid]
+      phi      &lt;- phi[valid]
+      
+      # SSF (~ cov only) — FIXED
+      ssf_df &lt;- data.frame(cov = cov_vals)
+      
+      mod_matrix &lt;- model.matrix(ssf_formula, ssf_df)
+      mod_matrix &lt;- mod_matrix[, !colnames(mod_matrix) == &quot;(Intercept)&quot;, drop = FALSE]
+      
+      linear_pred &lt;- mod_matrix %*% ssf_betas[4, state]
+      ssf_prob &lt;- as.numeric(exp(linear_pred))
+      ssf_prob &lt;- ssf_prob / sum(ssf_prob)
+      
+      # boundary filter
       inside &lt;- endpoints[,1] &gt;= 100 &amp; endpoints[,1] &lt;= 49900 &amp;
         endpoints[,2] &gt;= 100 &amp; endpoints[,2] &lt;= 49900
       
-      while (sum(inside) == 0) {
-        
-        # sample new turning angles centred on reverse direction
-        angle_candidates &lt;- rvm(
-          n_zeros,
-          mean = pi,
-          k = kappa[state]   # or a separate kappa_back
-        )
-        
-        phi_candidates &lt;- phi + angle_candidates
-        
-        dx &lt;- len_candidates * cos(phi_candidates)
-        dy &lt;- len_candidates * sin(phi_candidates)
-        
-        endpoints &lt;- cbind(
-          newLoc[1] + dx,
-          newLoc[2] + dy
-        )
-        
-        inside &lt;- endpoints[,1] &gt;= 100 &amp; endpoints[,1] &lt;= 49900 &amp;
-          endpoints[,2] &gt;= 100 &amp; endpoints[,2] &lt;= 49900
-      }
-      
-      endpoints &lt;- endpoints[inside, ,drop = FALSE]
-      angle_candidates &lt;- angle_candidates[inside]
-      phi_candidates &lt;- phi_candidates[inside]
-      len_candidates &lt;- len_candidates[inside]
-      
-      cov_vals &lt;- raster::extract(cov_raster, endpoints)
-      
-      endpoints.df &lt;- data.frame(
-        x = endpoints[,1],
-        y = endpoints[,2],
-        cov = cov_vals
-      )
-      
-      mod_matrix &lt;- model.matrix(ssf_formula, endpoints.df)
-      mod_matrix &lt;- mod_matrix[, -1, drop = FALSE]
-      
-      linear_pred &lt;- mod_matrix %*% as.matrix(ssf_betas[4, state])
-      ssf_prob &lt;- exp(linear_pred)
+      ssf_prob[!inside] &lt;- 0
+      if (sum(ssf_prob) == 0) next
       ssf_prob &lt;- ssf_prob / sum(ssf_prob)
       
-      chosen &lt;- sample(seq_len(nrow(endpoints)), 1, prob = ssf_prob)
+      chosen &lt;- sample.int(length(ssf_prob), 1, prob = ssf_prob)
       
       newLoc &lt;- endpoints[chosen, ]
-      phi &lt;- phi_candidates[chosen]
-      len &lt;- len_candidates[chosen]
+      phi    &lt;- phi[chosen]
+      len    &lt;- len[chosen]
       
-      track_data &lt;- rbind(track_data, data.frame(
+      track_list[[k]] &lt;- data.frame(
+        Track_id = tr,
         x = newLoc[1], y = newLoc[2],
         step = len,
         angle = phi - phi0,
@@ -825,25 +855,93 @@ for(c in 1:length(cov_beta)){
         state = state,
         time = time,
         ID = id
-      ))
+      )
+      k &lt;- k + 1
     }
     
-    data &lt;- rbind(data, track_data)
+    id_tracks[[tr]] &lt;- do.call(
+      rbind,
+      track_list[seq_len(k - 1)]
+    )
   }
   
-  # Convert to sf
-  data_sf &lt;- st_as_sf(data, coords = c(&quot;x&quot;, &quot;y&quot;), crs = 32630)
-  
-  # Save only the data object
-  save(data_sf, file = paste0(&quot;NCPF_cov&quot;, cov_beta[c], &quot;_&quot;, nbID, &quot;ind.RData&quot;))
+  do.call(rbind, id_tracks)
 }
+
+library(doParallel)
+library(foreach)
+
+ncores &lt;- parallel::detectCores() - 1
+cl &lt;- makeCluster(ncores)
+registerDoParallel(cl)
+
+for (c in seq_along(cov_beta)) {
+  
+  message(&quot;Running cov_beta = &quot;, cov_beta[c])
+  
+  ## scenario-specific parameters
+  cov_gamma  &lt;- c(1, 1, 1, 1)
+  cov_coefs  &lt;- cov_beta[c] * cov_gamma
+  
+  ssf_betas &lt;- matrix(
+    c(beta1, beta2, kappa, cov_coefs),
+    ncol = nbStates,
+    byrow = TRUE
+  )
+  
+  ## parallel over individuals
+  data &lt;- foreach(
+    id = seq_len(nbID),
+    .combine  = rbind,
+    .packages = c(&quot;CircStats&quot;, &quot;raster&quot;),
+    .export   = c(
+      &quot;simulate_one_ID&quot;,
+      &quot;trMatrix_rcpp&quot;,
+      &quot;cov_raster&quot;,
+      &quot;ssf_betas&quot;,
+      &quot;ssf_formula&quot;,
+      &quot;mu&quot;, &quot;sigma&quot;, &quot;kappa&quot;, &quot;am&quot;,
+      &quot;beta&quot;,
+      &quot;centre&quot;,
+      &quot;nbTracks&quot;,
+      &quot;nbStates&quot;,
+      &quot;n_zeros&quot;)
+  ) %dopar% {
+    
+    simulate_one_ID(
+      id         = id,
+      nbTracks   = nbTracks,
+      centre     = centre,
+      mu         = mu,
+      sigma      = sigma,
+      kappa      = kappa,
+      am         = am,
+      ssf_betas  = ssf_betas,
+      ssf_formula = ssf_formula,        
+      cov_raster = cov_raster,
+      beta       = beta,
+      nbStates   = nbStates,
+      n_zeros    = n_zeros
+    )
+  }
+  
+  ## save per-scenario
+  data_sf &lt;- sf::st_as_sf(data, coords = c(&quot;x&quot;, &quot;y&quot;), crs = 32630)
+  
+  save(
+    data_sf,
+    file = paste0(&quot;CPF_cov&quot;, cov_beta[c], &quot;_&quot;, nbID, &quot;ind.RData&quot;)
+  )
+}
+
+stopCluster(cl)
 
 # plot tracks
 ggplot() +
   geom_tile(data=df, aes(x,y,fill=factor(value)), alpha=0.1)+
-  geom_path(data= data[data$ID==100,], aes(x, y, col= factor(state), group = ID)) +
+  geom_path(data= data, aes(x, y, col= factor(state), group = ID))+
   scale_fill_manual(values = c(&quot;lightgrey&quot;, &quot;darkgreen&quot;), name = &quot;Habitat&quot;, labels=c(&quot;Unsuitable&quot;, &quot;Suitable&quot;))+
-  scale_colour_manual(values = c(&quot;black&quot;, &quot;darkorange&quot;, &quot;darkred&quot;), name = &quot;Behaviours&quot;, labels=c(&quot;Travel&quot;, &quot;Search&quot;, &quot;Foraging&quot;))+
+   scale_colour_manual(values = c(&quot;black&quot;, &quot;darkorange&quot;, &quot;darkred&quot;, &quot;grey&quot;), name = &quot;Behaviours&quot;, labels=c(&quot;Outbound&quot;, &quot;Search&quot;, &quot;Foraging&quot;, &quot;Inbound&quot;))+
   theme_bw() +
   coord_fixed()</code></pre>
 </div>

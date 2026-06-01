@@ -13,20 +13,30 @@ navbar:
     appendix:
       text: Appendices
       menu:
-      - text: "Model fitting"
-      - text: Appendix 1
-        href: Appendix1.html
-      - text: Appendix 2
-        href: Appendix2.html
+      - text: "Explanation of the methods"
+      - text: Appendix 1 (plain language)
+        href: Appendix_01.pdf
       - text: "---"
-      - text: "Data simulation"
-      - text: Appendix 3
-        href: Appendix3.html
-      - text: Appendix 4
-        href: Appendix4.html
+      - text: "Central place foragers (CPF)"
+      - text: Appendix 2 (simulation)
+        href: Appendix_02.html
+      - text: Appendix 3 (model fitting)
+        href: Appendix_03.html
+      - text: "---"
+      - text: "Non central place foragers (NCPF)"
+      - text: Appendix 4 (simulation)
+        href: Appendix_04.html
+      - text: Appendix 5 (model fitting)
+        href: Appendix_05.html
       - text: "---"
       - text: "Supplementary Results"
-      - text: Appendix 5
-        href: Appendix5.pdf
+      - text: Appendix 6
+        href: Appendix_06.pdf
+      - text: "---"
+      - text: "Supplementary Text"
+      - text: Appendix 7 (limitations)
+        href: Appendix_07.pdf
+      - text: Appendix 8 (considerations)
+        href: Appendix_08.pdf
       
 
