@@ -1,6 +1,6 @@
 ### Overview
 
-This repository contains supplementary material accompanying the article entitled '**Modelling habitat selection using tracking data from central place foraging species: A practical guide for quantitative ecologists**', submitted to the *Journal of Animal Ecology*.
+This repository contains supplementary material accompanying the article entitled '**Modelling habitat selection using tracking data from central place foraging species: A practical guide for ecologists**', submitted to the *Journal of Animal Ecology*.
 
 The full list of appendices is given below - these can be accessed using the navigation menu at the top of the page.
 
@@ -21,10 +21,6 @@ The full list of appendices is given below - these can be accessed using the nav
 **Appendix 8:** Supplementary text – things to consider before using these methods
 
 ------------------------------------------------------------------------
-
-### Pre-print
-
-A pre-print version of this article can be found at:
 
 ### Abstract
 
