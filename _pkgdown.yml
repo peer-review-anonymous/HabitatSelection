@@ -15,7 +15,7 @@ navbar:
       menu:
       - text: "Explanation of the methods"
       - text: Appendix 1 (plain language)
-        href: Appendix_01.pdf
+        href: Appendix_01.html
       - text: "---"
       - text: "Central place foragers (CPF)"
       - text: Appendix 2 (simulation)
@@ -31,12 +31,4 @@ navbar:
       - text: "---"
       - text: "Supplementary Results"
       - text: Appendix 6
-        href: Appendix_06.pdf
-      - text: "---"
-      - text: "Supplementary Text"
-      - text: Appendix 7 (limitations)
-        href: Appendix_07.pdf
-      - text: Appendix 8 (considerations)
-        href: Appendix_08.pdf
-      
-
+        href: Appendix_06.html

@@ -2,7 +2,7 @@ pandoc: 3.8.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles: {}
-last_built: 2026-06-10T12:21Z
+last_built: 2026-08-19T14:04Z
 urls:
   reference: https://peer-review-anonymous.github.io/HabitatSelection/reference
   article: https://peer-review-anonymous.github.io/HabitatSelection/articles
