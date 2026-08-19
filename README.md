@@ -6,13 +6,13 @@ The full list of appendices is given below - these can be accessed using the nav
 
 **Appendix 1:** Plain-language summary of the 'Explanation of the method' section of the article
 
-**Appendix 2:** Data simulation for central place foraging (CPF) species
+**Appendix 2:** Data simulation for central place foragers (CPF)
 
-**Appendix 3:** Model fitting for central place foraging (CPF) species
+**Appendix 3:** Model fitting for central place foragers (CPF)
 
-**Appendix 4:** Data simulation for non central place foraging (NCPF) species
+**Appendix 4:** Data simulation for non central place foragers (NCPF)
 
-**Appendix 5:** Model fitting for non central place foraging (NCPF) species
+**Appendix 5:** Model fitting for non central place foragers (NCPF)
 
 **Appendix 6:** Supplementary figures – comparison of model estimates for CPF and NCPF
 
