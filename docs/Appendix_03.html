@@ -828,7 +828,7 @@ our case, the intensity is modelled as:</p>
 \]</span></p>
 <p>where Habitat<span class="math inline">\((s_i)\)</span> is a binary
 indicator of habitat suitability and Distance<span class="math inline">\((s_i)\)</span> is the distance from the
-colony.</p>
+colony. Note that we use the distance covariate here as a way to account for broad-scale spatial structure associated with central place constraints. It is not intended as an estimate of the availability distribution or of the underlying accessibility process.</p>
 <p>The total number of points in region <span class="math inline">\(A\)</span> follows:</p>
 <p><span class="math display">\[
 N(A) \sim \text{Poisson}\left(\int_A \lambda(s)\, ds\right)
